@@ -130,4 +130,15 @@ endif
 nnoremap <C-s> :new ~/.vimrc<CR>
 " esc esc: delete highlight
 nnoremap <Esc><Esc> :nohlsearch<CR>
+" カッコ、クォート補完
+inoremap { {}<LEFT>
+inoremap [ []<LEFT>
+inoremap ( ()<LEFT>
+inoremap " ""<LEFT>
+inoremap ' ''<LEFT>
+vnoremap { "zdi{<C-R>z}<ESC>
+vnoremap [ "zdi[<C-R>z]<ESC>
+vnoremap ( "zdi(<C-R>z)<ESC>
+vnoremap " "zdi"<C-R>z^V"<ESC>
+vnoremap ' "zdi'<C-R>z'<ESC>
 " ---custom kaymap---

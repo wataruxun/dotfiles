@@ -2,7 +2,7 @@
 
 ## LANG
 export LANG=ja_JP.UTF-8
-export LC_ALL=ja_JP.UTF-8
+#export LC_ALL=ja_JP.UTF-8
 
 ## color
 autoload -Uz colors
@@ -38,6 +38,7 @@ setopt hist_reduce_blanks
 setopt inc_append_history
 setopt auto_cd
 setopt auto_pushd
+setopt correct
 
 # powerlevel10k
 
@@ -57,3 +58,34 @@ source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
 # alias
 ## update sudo expiration time
 alias sudo='sudo -v; sudo '
+
+## ls
+alias ls='ls --color=auto'
+alias ll='ls -alF --color=auto'
+alias la='ls -A --color=auto'
+alias l='ls -CF --color=auto'
+
+## cd
+# function; run ls after cd
+cdls ()
+{
+\cd "$@" && ls --color=auto
+}
+alias cd="cdls"
+alias work="cd ~/Workspace"
+alias dot="cd ~/dotfiles"
+
+## git
+alias g='git'
+alias ga='git add'
+alias gd='git diff'
+alias gs='git status'
+alias gp='git push'
+alias gb='git branch'
+alias gf='git fetch'
+alias gc='git commit'
+
+## confirm destructive change
+alias cp='cp -i'
+alias mv='mv -i'
+alias rm='rm -i'
