@@ -41,9 +41,6 @@ repo = 'vim-airline/vim-airline'
 repo = 'vim-airline/vim-airline-themes'
 
 [[plugins]]
-repo = 'dense-analysis/ale'
-
-[[plugins]]
 repo = 'dhruvasagar/vim-table-mode'
 
 [[plugins]]
@@ -52,4 +49,22 @@ repo = 'simeji/winresizer'
 [[plugins]]
 repo = 'thinca/vim-quickrun'
 
+#[[plugins]]
+#repo = 'dense-analysis/ale'
+
+[[plugins]]
+repo = 'prabirshrestha/asyncomplete.vim'
+
+[[plugins]]
+repo = 'prabirshrestha/asyncomplete-lsp.vim'
+
+[[plugins]]
+repo = 'prabirshrestha/vim-lsp'
+
+[[plugins]]
+repo = 'mattn/vim-lsp-settings'
+hook_add = '''
+  " Show diagnostics message to status line
+  let g:lsp_diagnostics_echo_cursor = 1
+'''
 

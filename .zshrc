@@ -85,7 +85,17 @@ alias gb='git branch'
 alias gf='git fetch'
 alias gc='git commit'
 
+## vim
+alias vi="vim"
+
 ## confirm destructive change
 alias cp='cp -i'
 alias mv='mv -i'
 alias rm='rm -i'
+
+# anyenv
+if [ -d $HOME/.anyenv ]
+then
+    export PATH="$HOME/.anyenv/bin:$PATH"
+    eval "$(anyenv init -)"
+fi

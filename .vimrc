@@ -21,6 +21,11 @@ let g:airline_theme='powerlineish'
 let g:table_mode_corner = '|'
 let NERDTreeShowHidden = 1
 nmap <C-b> :NERDTreeToggle<CR>
+let g:lsp_diagnostics_echo_cursor = 0
+let g:lsp_diagnostics_signs_enabled = 1
+let g:lsp_diagnostics_signs_error = {'text': '❌'}
+let g:lsp_diagnostics_signs_warning = {'text': '⚠'}
+let g:lsp_diagnostics_signs_hint = {'text': '💡'}
 
 " --- plugin management ---
 " dein.vim settings {{{
@@ -81,7 +86,6 @@ set ambiwidth=double
 set cursorline
 set cursorcolumn
 set showmatch
-
 
 " search
 set hlsearch
