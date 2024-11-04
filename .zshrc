@@ -87,6 +87,8 @@ alias gc='git commit'
 
 ## vim
 alias vi="vim"
+## neovim
+alias nv="nvim"
 
 ## confirm destructive change
 alias cp='cp -i'
@@ -99,3 +101,7 @@ then
     export PATH="$HOME/.anyenv/bin:$PATH"
     eval "$(anyenv init -)"
 fi
+
+# npm setting
+export PATH="$PATH:$(npm bin -g)"
+
