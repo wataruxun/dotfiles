@@ -83,7 +83,7 @@ alias l='ls -CF --color=auto'
 # function; run ls after cd
 cdls ()
 {
-\cd "$@" && ls --color=auto
+\cd "$@" && ls -A --color=auto
 }
 alias cd="cdls"
 alias work="cd ~/Workspace"
