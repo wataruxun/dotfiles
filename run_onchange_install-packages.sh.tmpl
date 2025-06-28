@@ -17,7 +17,6 @@ install_packages() {
   echo "> Installing packages with Homebrew..."
   brew install zsh tmux neovim git \
     zsh-syntax-highlighting zsh-autosuggestions powerlevel10k \
-    anyenv node \
     ripgrep fd lazygit gdu bottom unzip
 
   # --- Arch Linux (pacman) ---
@@ -31,33 +30,7 @@ install_packages() {
     zsh-syntax-highlighting zsh-autosuggestions powerlevel10k \
     ripgrep fd lazygit gdu bottom unzip gcc
 
-  # anyenvはAURヘルパー(yayなど)を使うか、手動でgit cloneするのが一般的
-  if ! command -v anyenv >/dev/null 2>&1; then
-    echo "> anyenv not found. Please install it manually from git."
-    echo "  git clone https://github.com/anyenv/anyenv ~/.anyenv"
-  fi
   {{ end -}}
-
-  # --- Language-specific tools (common for all OS) ---
-  # Install/Update Node.js and global npm packages
-  if command -v npm >/dev/null 2>&1; then
-    echo "> Installing/Updating global npm packages..."
-    npm install -g pyright
-  fi
-
-  # Install/Update Go tools
-  if command -v go >/dev/null 2>&1; then
-    echo "> Installing/Updating Go tools..."
-    go install golang.org/x/tools/gopls@latest
-  fi
-
-  # Install/Update Rust tools
-  if command -v rustup >/dev/null 2>&1; then
-    echo "> Installing/Updating Rust tools (rust-analyzer)..."
-    rustup component add rust-analyzer
-  else
-    echo "> rustup not found. Skipping rust-analyzer installation."
-  fi
 
   echo "> Package installation script finished."
 }
