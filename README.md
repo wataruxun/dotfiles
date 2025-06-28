@@ -1,112 +1,143 @@
-# dotfiles (chezmoiで管理)
+# Personal Dotfiles
 
-[![chezmoi logo](https://www.chezmoi.io/logo.svg)](https://www.chezmoi.io)
+chezmoi で管理している個人のdotfiles
 
-このリポジトリは、[chezmoi](https://www.chezmoi.io/) を使って管理している個人のdotfilesです。複数のOSで一貫した環境を構築できるように設計されています。
+**前提条件**: PCにgitがインストール済みであること
 
-## ✨ 主な特徴
+## セットアップ
 
-- **クロスプラットフォーム対応**: **macOS**, **Arch Linux**, **Windows (WSL2)** の環境をサポートします。
-- **セットアップの自動化**: 各OSに必要なパッケージやツールを自動でインストールします。
-- **一貫した開発環境**: ターミナル、エディタ (Vim/Neovim)、各種ツールの設定を常に同期します。
+### chezmoiインストール
 
----
-
-## 🚀 セットアップ方法
-
-新しいマシンにこのdotfilesをセットアップする手順です。
-
-### 1. 事前準備
-
-**Gitのインストール**
-```sh
-# macOS (Xcode Command Line Toolsに含まれています)
-xcode-select --install
-
-# Arch Linux
-sudo pacman -S git
+**macOS**
+```bash
+brew install chezmoi
 ```
 
-**chezmoiのインストール**
-```sh
-# macOS または Linux
+**Arch Linux**
+```bash
+sudo pacman -S chezmoi
+```
+
+**その他/汎用**
+```bash
 sh -c "$(curl -fsLS get.chezmoi.io)"
 ```
-*その他のインストール方法は[公式ドキュメント](https://www.chezmoi.io/install/)を参照してください。*
 
-### 2. インストール手順
+### dotfiles適用
 
-1.  **chezmoiを初期化**
-    ```sh
-    # "wataru-script/dotfiles.git" の部分はご自身のものに置き換えてください
-    chezmoi init https://github.com/wataru-script/dotfiles.git
-    ```
+```bash
+# 初期化
+chezmoi init git@github.com:wataru-script/dotfiles.git
 
-2.  **変更内容の確認（推奨）**
-    ホームディレクトリにどのような変更が加わるかを事前に確認します。
-    ```sh
-    chezmoi diff
-    ```
+# 変更内容確認
+chezmoi diff
 
-3.  **dotfilesの適用**
-    ```sh
-    chezmoi apply -v
-    ```
-    初回は `-v` (verbose) オプション付きでの実行を推奨します。このコマンドにより、以下の処理が実行されます。
-    - ホームディレクトリに設定ファイルが展開されます。
-    - インストールスクリプトが実行され、必要なパッケージが自動でインストールされます (macOSでは`brew`、Linuxでは`pacman`を使用)。
+# 適用（パッケージも自動インストール）
+chezmoi apply -v
+```
 
----
+## 使用方法
 
-## 🔧 このリポジトリの仕組み
+### 設定ファイルの変更
+```bash
+# 1. ソースディレクトリでファイル編集（VSCodeなど任意のエディタ）
+code $(chezmoi source-path)
 
-`chezmoi`の便利な機能を活用して、OSごとの差異を吸収しています。
+# 2. 変更を適用
+chezmoi apply -v
+```
 
-### OS固有の設定
+### 新しいファイルを管理対象に追加
+```bash
+# ファイルをchezmoiに追加
+chezmoi add ~/.gitconfig
 
-- **テンプレート機能 (`.tmpl`)**: `.zshrc.tmpl` のように、末尾が `.tmpl` のファイルにはGo言語のテンプレート構文を記述できます。これにより、OSに応じて設定内容を切り替えています。
-  ```go-template
-  {{ if eq .chezmoi.os "darwin" -}}
-  # macOS固有の設定
-  {{ else if eq .chezmoi.os "linux" -}}
-  # Linux固有の設定
-  {{ end -}}
-  ```
+# ソースディレクトリに移動してコミット
+cd $(chezmoi source-path)
+git add .
+git commit -m "Add gitconfig"
+```
 
-### パッケージの自動インストール
+### パッケージリストの更新
+```bash
+# ソースディレクトリでインストールスクリプトを編集
+cd $(chezmoi source-path)
+code run_onchange_install-packages.sh.tmpl
 
-- **実行スクリプト (`run_*.sh`)**: `run_onchange_install-packages.sh.tmpl` というスクリプトは、`chezmoi apply`実行時に内容の変更を検知して自動で実行されます。
-- このスクリプトがOSを判別し、`brew`や`pacman`といったパッケージマネージャーを使って、`zsh`, `neovim`, 各種LSPサーバーまで、必要なツールをすべてインストール・更新します。
+# 変更を適用
+chezmoi apply
+```
 
----
+## 仕組み
 
-## 🛠️ メンテナンス方法
+### テンプレート機能
+`.tmpl` ファイルでOS別設定を切り替え
+```go-template
+{{ if eq .chezmoi.os "darwin" -}}
+# macOS用設定
+{{ else if eq .chezmoi.os "linux" -}}
+# Linux用設定
+{{ end -}}
+```
 
-### 既存のファイルを変更する
+### 自動パッケージインストール
+`run_onchange_install-packages.sh.tmpl` がファイル変更時に自動実行される
 
-1.  `chezmoi`のソースディレクトリ内にあるファイルを直接編集します。ソースディレクトリのパスは以下のコマンドで確認できます。
-    ```sh
-    chezmoi source-path
-    ```
-2.  編集後、変更を適用します。
-    ```sh
-    chezmoi apply -v
-    ```
+## よく使うコマンド
 
-### 新しいファイルを追加する
+```bash
+# ソースディレクトリの場所を確認（編集時に使用）
+chezmoi source-path
 
-1.  管理したいファイルを`chezmoi`に追加します。例えば `~/.gitconfig` を追加する場合：
-    ```sh
-    chezmoi add ~/.gitconfig
-    ```
-2.  ファイルがソースディレクトリにコピーされるので、必要に応じて編集し、Gitにコミットしてください。
+# 管理対象ファイル一覧を表示
+chezmoi managed
 
-### 対応パッケージを更新する
+# 現在の状態と管理ファイルの差分確認
+chezmoi diff
 
-1.  インストールスクリプトをエディタで開きます。
-    ```sh
-    # $EDITORにはお使いのエディタが入ります
-    $EDITOR "$(chezmoi source-path)/run_onchange_install-packages.sh.tmpl"
-    ```
-2.  対象OSのパッケージリストを編集（追加・削除）します。
-3.  `chezmoi apply` を実行すると、更新されたスクリプトが実行されます。
+# 実際の適用前に何が変更されるかを確認
+chezmoi apply --dry-run --verbose
+
+# 既存ファイルがあっても強制上書きして適用
+chezmoi apply --force
+
+# 特定ファイルのみ適用
+chezmoi apply ~/.zshrc
+
+# 新しいファイルを管理対象に追加
+chezmoi add ~/.gitconfig
+
+# ファイルの編集（テンプレートファイルを直接編集）
+chezmoi edit ~/.zshrc
+
+# リモートリポジトリから最新を取得して適用
+chezmoi update
+```
+
+## トラブルシューティング
+
+**パッケージインストールエラー**
+```bash
+# macOS
+brew update && brew doctor
+
+# Arch Linux
+sudo pacman -Syu
+```
+
+**リセット**
+```bash
+rm -rf ~/.local/share/chezmoi ~/.config/chezmoi
+chezmoi init git@github.com:wataru-script/dotfiles.git
+```
+
+## 機微情報管理
+
+現在は機微情報の管理は想定していないが、将来的に必要になった場合は1Passwordとの連携を検討する。
+
+### 1Password連携の方針
+- API Key、パスワード等の機微情報は1Passwordで管理
+- chezmoiの1Password連携機能を使用してテンプレートから参照
+- 環境変数や設定ファイルに平文で記載しない
+
+参考: [chezmoi 1Password integration](https://www.chezmoi.io/user-guide/password-managers/1password/)
