@@ -125,3 +125,5 @@ fi
 # npm setting
 export PATH="$PATH:$(npm bin -g)"
 
+# Load machine-specific settings
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

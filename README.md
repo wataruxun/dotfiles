@@ -2,11 +2,29 @@
 
 chezmoi で管理している個人のdotfiles
 
+## 📍 chezmoiファイルの場所
+
+**ソースディレクトリ**: `~/.local/share/chezmoi/`（このREADMEがある場所）
+
+迷ったら以下のコマンドで確認:
+```bash
+chezmoi source-path
+```
+
+**管理されているファイルたち**:
+- `.zshrc` - zsh設定（OS別に自動切り替え）
+- `.tmux.conf` - tmux設定
+- `.vimrc` - vim設定
+- `.config/nvim/` - neovim設定
+- `install-packages.sh` - パッケージ自動インストールスクリプト
+
+---
+
 **前提条件**: PCにgitがインストール済みであること
 
-## セットアップ
+## 🚀 新しいマシンでのセットアップ
 
-### chezmoiインストール
+### 1. chezmoiをインストール
 
 **macOS**
 ```bash
@@ -23,100 +41,167 @@ sudo pacman -S chezmoi
 sh -c "$(curl -fsLS get.chezmoi.io)"
 ```
 
-### dotfiles適用
+### 2. dotfilesを初期化して適用
 
 ```bash
-# 初期化
+# リポジトリから初期化（~/.local/share/chezmoi/ にクローンされる）
 chezmoi init git@github.com:wataru-script/dotfiles.git
 
-# 変更内容確認
+# 何が変更されるか確認
 chezmoi diff
 
-# 適用（パッケージも自動インストール）
+# 適用（パッケージも自動インストールされる）
 chezmoi apply -v
 ```
 
-## 使用方法
+これだけで以下が自動的に実行されます:
+- ✅ dotfilesがホームディレクトリに配置
+- ✅ OS別の設定が自動選択（macOS/Linux）
+- ✅ 必要なパッケージが自動インストール
 
-### 設定ファイルの変更
+## 📝 日常的な使い方（既にchezmoiを使っているマシン）
+
+### よくある作業フロー
+
+**1. 設定ファイルを編集したい**
 ```bash
-# 1. ソースディレクトリでファイル編集（VSCodeなど任意のエディタ）
+# ソースディレクトリを開く（~/.local/share/chezmoi/）
 code $(chezmoi source-path)
 
-# 2. 変更を適用
+# または直接編集
+chezmoi edit ~/.zshrc
+
+# 変更を適用
 chezmoi apply -v
 ```
 
-### 新しいファイルを管理対象に追加
+**2. 他のマシンの変更を取り込みたい**
 ```bash
-# ファイルをchezmoiに追加
+# リモートから最新を取得して適用
+chezmoi update
+```
+
+**3. 新しいファイルをchezmoiで管理したい**
+```bash
+# ファイルを追加
 chezmoi add ~/.gitconfig
 
-# ソースディレクトリに移動してコミット
+# ソースディレクトリでコミット
 cd $(chezmoi source-path)
 git add .
 git commit -m "Add gitconfig"
+git push
 ```
 
-### パッケージリストの更新
+**4. パッケージを追加/削除したい**
 ```bash
-# ソースディレクトリでインストールスクリプトを編集
+# インストールスクリプトを編集
 cd $(chezmoi source-path)
 code run_onchange_install-packages.sh.tmpl
 
-# 変更を適用
-chezmoi apply
+# 適用（変更検知で自動実行される）
+chezmoi apply -v
 ```
 
-## 仕組み
+### マシン固有の設定（オプション）
+chezmoiで管理する共通設定とは別に、特定のマシンでのみ必要な設定を追加できます。
 
-### テンプレート機能
-`.tmpl` ファイルでOS別設定を切り替え
+```bash
+# ~/.zshrc.localを作成・編集
+code ~/.zshrc.local
+```
+
+**~/.zshrc.local の例**
+```bash
+#!/bin/zsh
+# Machine-specific settings
+
+# 会社専用の環境変数
+export COMPANY_PROXY="http://proxy.example.com:8080"
+
+# このマシン専用のエイリアス
+alias work="cd ~/Projects/work"
+
+# 特定アプリケーションの設定
+export EDITOR="code"
+```
+
+**ポイント**
+- `.zshrc.local` は `.chezmoiignore` で除外されているため、chezmoiで管理されません
+- ファイルが存在しない環境でも `.zshrc` は正常に動作します
+- マシン固有の設定（プロキシ、パス、機密情報など）をGitにコミットせずに管理できます
+
+## 🔍 仕組みの理解
+
+### OS別の設定はどう管理されている？
+
+`.tmpl` ファイルでOS別設定を自動切り替え:
 ```go-template
 {{ if eq .chezmoi.os "darwin" -}}
-# macOS用設定
+# macOS用設定（例: Homebrew のパス）
 {{ else if eq .chezmoi.os "linux" -}}
-# Linux用設定
+# Linux用設定（例: pacman のパス）
 {{ end -}}
 ```
 
-### 自動パッケージインストール
-`run_onchange_install-packages.sh.tmpl` がファイル変更時に自動実行される
+**使い分け**:
+- **OS依存の設定** → `.tmpl` で条件分岐（例: パッケージマネージャのパス）
+- **マシン固有の設定** → `~/.zshrc.local`（例: 会社のプロキシ、Docker設定）
 
-## よく使うコマンド
+### パッケージの自動インストール
 
+`run_onchange_install-packages.sh.tmpl` がファイル変更時に自動実行される仕組み:
+1. ファイル内容が変更されたことを検知
+2. `chezmoi apply` 時に自動でスクリプト実行
+3. OS別に適切なパッケージマネージャを使用
+
+## 📚 コマンドリファレンス
+
+### 確認系
 ```bash
-# ソースディレクトリの場所を確認（編集時に使用）
-chezmoi source-path
+# ソースディレクトリの場所
+chezmoi source-path              # → ~/.local/share/chezmoi/
 
-# 管理対象ファイル一覧を表示
+# 管理対象ファイル一覧
 chezmoi managed
 
-# 現在の状態と管理ファイルの差分確認
+# ホームディレクトリとの差分
 chezmoi diff
+```
 
-# 実際の適用前に何が変更されるかを確認
-chezmoi apply --dry-run --verbose
+### 編集・適用
+```bash
+# ファイルを編集（ソースファイルを直接開く）
+chezmoi edit ~/.zshrc
 
-# 既存ファイルがあっても強制上書きして適用
-chezmoi apply --force
+# 全体を適用
+chezmoi apply -v
 
 # 特定ファイルのみ適用
 chezmoi apply ~/.zshrc
 
-# 新しいファイルを管理対象に追加
-chezmoi add ~/.gitconfig
+# ドライラン（何が変更されるか確認のみ）
+chezmoi apply --dry-run --verbose
+```
 
-# ファイルの編集（テンプレートファイルを直接編集）
-chezmoi edit ~/.zshrc
-
-# リモートリポジトリから最新を取得して適用
+### 同期
+```bash
+# リモートから最新を取得して適用
 chezmoi update
 ```
 
-## トラブルシューティング
+### その他
+```bash
+# 新しいファイルを管理対象に追加
+chezmoi add ~/.gitconfig
 
-**パッケージインストールエラー**
+# 既存ファイルがあっても強制上書き
+chezmoi apply --force
+```
+
+## ⚠️ トラブルシューティング
+
+### パッケージインストールエラー
 ```bash
 # macOS
 brew update && brew doctor
@@ -125,19 +210,48 @@ brew update && brew doctor
 sudo pacman -Syu
 ```
 
-**リセット**
+### chezmoi apply時に上書きを拒否される
 ```bash
+# 差分を確認
+chezmoi diff
+
+# 問題なければ強制上書き
+chezmoi apply --force
+```
+
+### 設定をリセットしたい
+```bash
+# chezmoiの状態を削除
 rm -rf ~/.local/share/chezmoi ~/.config/chezmoi
+
+# 再度初期化
+chezmoi init git@github.com:wataru-script/dotfiles.git
+chezmoi apply -v
+```
+
+### ソースディレクトリが見つからない
+```bash
+# 場所を確認
+chezmoi source-path
+
+# まだ初期化されていない場合
 chezmoi init git@github.com:wataru-script/dotfiles.git
 ```
 
-## 機微情報管理
+---
 
-現在は機微情報の管理は想定していないが、将来的に必要になった場合は1Passwordとの連携を検討する。
+## 🔒 機微情報の扱い
 
-### 1Password連携の方針
-- API Key、パスワード等の機微情報は1Passwordで管理
-- chezmoiの1Password連携機能を使用してテンプレートから参照
-- 環境変数や設定ファイルに平文で記載しない
+**現在の方針**: 機微情報は `~/.zshrc.local` に記載（Gitにコミットしない）
 
-参考: [chezmoi 1Password integration](https://www.chezmoi.io/user-guide/password-managers/1password/)
+**将来的な選択肢**: 1Password連携
+- API Key、パスワード等を1Passwordで管理
+- chezmoiの1Password連携機能でテンプレートから参照
+- 参考: [chezmoi 1Password integration](https://www.chezmoi.io/user-guide/password-managers/1password/)
+
+---
+
+## 📖 参考情報
+
+- **公式ドキュメント**: https://www.chezmoi.io/
+- **このリポジトリ**: https://github.com/wataru-script/dotfiles
