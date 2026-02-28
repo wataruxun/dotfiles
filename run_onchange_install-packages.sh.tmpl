@@ -15,6 +15,20 @@ install_packages() {
   brew update
 
   echo "> Installing packages with Homebrew..."
+  # パッケージ一覧と用途:
+  #   zsh                                 [.zshrc] シェル本体
+  #   tmux                                [.tmux.conf] ターミナルマルチプレクサ
+  #   neovim                              [.vimrc / .config/nvim/] テキストエディタ
+  #   git                                 [全般] バージョン管理
+  #   zsh-syntax-highlighting             [.zshrc] シンタックスハイライト
+  #   zsh-autosuggestions                 [.zshrc] 補完候補表示
+  #   powerlevel10k                       [.zshrc] zshテーマ
+  #   ripgrep                             [汎用] 高速grep
+  #   fd                                  [汎用] 高速find
+  #   lazygit                             [汎用] git TUIクライアント
+  #   gdu                                 [汎用] ディスク使用量確認
+  #   bottom                              [汎用] システムモニター
+  #   unzip                               [汎用] 解凍ツール
   brew install zsh tmux neovim git \
     zsh-syntax-highlighting zsh-autosuggestions powerlevel10k \
     ripgrep fd lazygit gdu bottom unzip
@@ -25,6 +39,8 @@ install_packages() {
   sudo pacman -Syu --noconfirm
 
   echo "> Installing packages with pacman..."
+  # パッケージ一覧と用途は macOS セクションのコメントを参照
+  # gcc のみ Linux 追加: コンパイラ（neovimプラグインのビルド等に必要）
   sudo pacman -S --noconfirm --needed \
     zsh tmux neovim git \
     zsh-syntax-highlighting zsh-autosuggestions powerlevel10k \

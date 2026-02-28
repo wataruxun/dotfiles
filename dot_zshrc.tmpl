@@ -1,3 +1,10 @@
+# powerlevel10k instant prompt
+# パフォーマンス: プロンプトを即時表示するため .zshrc の先頭に配置する必要がある
+# コンソール入力が必要な処理（パスワードプロンプト等）はこのブロックより前に書くこと
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # General
 
 ## LANG
@@ -19,14 +26,26 @@ source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 {{ end -}}
 
-
 ## zsh-completions
+{{ if eq .chezmoi.os "darwin" -}}
+{{ if eq .chezmoi.arch "arm64" -}}
+if [ -e /opt/homebrew/share/zsh-completions ]; then
+	fpath=(/opt/homebrew/share/zsh-completions $fpath)
+fi
+{{ else -}}
 if [ -e /usr/local/share/zsh-completions ]; then
 	fpath=(/usr/local/share/zsh-completions $fpath)
 fi
+{{ end -}}
+{{ end -}}
 
 autoload -Uz compinit
-compinit -u
+# パフォーマンス: .zcompdump が24時間以上古い場合のみフル初期化、それ以外はキャッシュ利用
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
 
 ## completion option
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
@@ -48,18 +67,14 @@ setopt auto_cd
 setopt auto_pushd
 setopt correct
 
-# powerlevel10k
-
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
+# powerlevel10k theme
 {{ if eq .chezmoi.os "darwin" -}}
 # Mac
+{{ if eq .chezmoi.arch "arm64" -}}
 source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+{{ else -}}
+source /usr/local/share/powerlevel10k/powerlevel10k.zsh-theme
+{{ end -}}
 {{ else if eq .chezmoi.os "linux" -}}
 # ArchLinux
 source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
@@ -121,9 +136,6 @@ then
     export PATH="$HOME/.anyenv/bin:$PATH"
     eval "$(anyenv init -)"
 fi
-
-# npm setting
-export PATH="$PATH:$(npm bin -g)"
 
 # Load machine-specific settings
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local

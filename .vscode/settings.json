@@ -3,12 +3,16 @@
         "anyenv",
         "autoload",
         "cdls",
+        "chezmoi",
+        "chezmoiignore",
         "compinit",
         "fpath",
         "nvim",
+        "pacman",
         "powerlevel",
         "SAVEHIST",
         "setopt",
+        "vimrc",
         "zstyle"
     ]
 }
